@@ -12,6 +12,7 @@ import {
   requireAuth,
 } from "./auth.ts";
 import { parseBody } from "./validate.ts";
+import { taskRoutes } from "./tasks.ts";
 
 const Credentials = z.object({
   email: z.email().transform((s) => s.toLowerCase()),
@@ -57,7 +58,7 @@ export function createApp(db: Db) {
   // Every /api route needs a valid token.
   app.use("/api/*", requireAuth(db));
 
-  // TODO R4: GET/POST /api/tasks and GET/PUT/DELETE /api/tasks/:id, only for the owner.
+  app.route("/api/tasks", taskRoutes(db));
 
   app.notFound((c) => c.json({ error: "not found" }, 404));
   app.onError((err, c) => {
