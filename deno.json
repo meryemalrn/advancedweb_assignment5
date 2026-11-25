@@ -21,5 +21,10 @@
   },
   "fmt": {
     "lineWidth": 90
+  },
+  "lint": {
+    "exclude": [
+      "ui/"
+    ]
   }
 }
