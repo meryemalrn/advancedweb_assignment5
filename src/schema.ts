@@ -18,5 +18,20 @@ export const sessions = sqliteTable("sessions", {
   expiresAt: integer("expires_at").notNull(),
 });
 
-// TODO R2: define `tasks` the same way. Status is a text column restricted to
-// "todo" | "in-progress" | "done". A task belongs to one user (userId).
+export const STATUSES = ["todo", "in-progress", "done"] as const;
+export const PRIORITIES = ["low", "medium", "high"] as const;
+
+// A task belongs to one user. Every query on this table must filter on userId.
+export const tasks = sqliteTable("tasks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  // Own field: an optional longer text next to the short title.
+  description: text("description"),
+  status: text("status", { enum: STATUSES }).notNull().default("todo"),
+  priority: text("priority", { enum: PRIORITIES }).notNull().default("medium"),
+  createdAt: integer("created_at").notNull().default(sql`(strftime('%s','now'))`),
+});
+
+export type Task = typeof tasks.$inferSelect;
+export type NewTask = typeof tasks.$inferInsert;
